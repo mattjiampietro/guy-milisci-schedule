@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guy Milisci · UT Austin Plan II Spring 2027 Schedule Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ut-burnt-orange: #BF5700;
+      --ut-orange-glow: rgba(191, 87, 0, 0.45);
+      --ut-dark: #070d18;
+      --ut-card: rgba(13, 24, 43, 0.88);
+      --ut-border: rgba(96, 165, 250, 0.18);
+      --ut-cyan: #22d3ee;
+      --ut-green: #34d399;
+      --ut-amber: #fbbf24;
+      --ut-purple: #c084fc;
+      --ut-pink: #f472b6;
+      --ut-blue: #60a5fa;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #040812 radial-gradient(circle at 50% -20%, #1e110a 0%, #070d18 50%, #030712 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px 16px 80px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1280px; margin: 0 auto; }
+    
+    /* Header */
+    header {
+      background: linear-gradient(135deg, rgba(20, 12, 8, 0.9) 0%, rgba(13, 24, 43, 0.95) 100%);
+      border: 1px solid rgba(191, 87, 0, 0.4);
+      border-radius: 20px;
+      padding: 24px 28px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 24px var(--ut-orange-glow);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(191, 87, 0, 0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .badge-ut { background: rgba(191, 87, 0, 0.2); color: #ff9d55; border: 1px solid rgba(191, 87, 0, 0.5); }
+    .badge-plan2 { background: rgba(192, 132, 252, 0.15); color: #d8b4fe; border: 1px solid rgba(192, 132, 252, 0.4); }
+    .badge-status { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.4); }
+    
+    h1 { font-size: 28px; font-weight: 900; letter-spacing: -0.02em; color: #fff; margin-bottom: 6px; }
+    h1 span { color: #ff8533; }
+    .subhead { color: var(--text-muted); font-size: 14px; max-width: 850px; }
+    
+    /* Stats Metric Ribbon */
+    .metrics-ribbon {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .metric-card {
+      background: rgba(4, 11, 22, 0.6);
+      border: 1px solid var(--ut-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+    .metric-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
+    .metric-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+    
+    /* Presets Strip */
+    .section-card {
+      background: var(--ut-card);
+      border: 1px solid var(--ut-border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      margin-bottom: 24px;
+      backdrop-filter: blur(16px);
+    }
+    .section-title {
+      font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #ff9d55; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .preset-group {
+      display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .preset-btn {
+      appearance: none; border: 1px solid var(--ut-border);
+      background: rgba(16, 30, 54, 0.7);
+      color: #cbd5e1;
+      padding: 10px 16px; border-radius: 12px;
+      font-family: inherit; font-size: 13px; font-weight: 750;
+      cursor: pointer; transition: all 0.2s ease;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .preset-btn:hover {
+      background: rgba(191, 87, 0, 0.22);
+      border-color: rgba(191, 87, 0, 0.6);
+      color: #ffb076;
+      transform: translateY(-1px);
+    }
+    .preset-btn.active {
+      background: linear-gradient(135deg, rgba(191, 87, 0, 0.4) 0%, rgba(191, 87, 0, 0.15) 100%);
+      border-color: #ff7711;
+      color: #fff;
+      box-shadow: 0 0 16px rgba(191, 87, 0, 0.4);
+    }
+    .preset-btn .badge-rec {
+      background: #bf5700; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 800;
+    }
+
+    /* Course Selector Pills */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .course-pill {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: rgba(8, 17, 32, 0.75);
+      border: 1px solid var(--ut-border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .course-pill:hover {
+      border-color: rgba(255, 157, 85, 0.4);
+      background: rgba(15, 30, 56, 0.85);
+    }
+    .course-pill.selected {
+      border-color: var(--accent-col, #bf5700);
+      background: rgba(18, 35, 65, 0.9);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+    }
+    .course-pill.selected::before {
+      content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 4px;
+      background: var(--accent-col, #bf5700);
+      border-radius: 0 4px 4px 0;
+    }
+    .course-checkbox {
+      margin-top: 3px; width: 18px; height: 18px; accent-color: #bf5700; cursor: pointer;
+    }
+    .course-info { flex: 1; min-width: 0; }
+    .course-code-line { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+    .course-code { font-weight: 850; font-size: 14px; color: #fff; }
+    .course-hours { font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .course-title { font-size: 12px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+    .course-prof-time { font-size: 11.5px; color: #cbd5e1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .tag-flag { font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.08); }
+    .tag-locked { color: #f472b6; border: 1px solid rgba(244, 114, 182, 0.4); }
+    .tag-easy { color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); }
+    
+    /* Timetable Grid */
+    .timetable-wrap {
+      margin-top: 16px;
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--ut-border);
+      background: rgba(3, 8, 18, 0.85);
+    }
+    .online-strip {
+      background: rgba(34, 211, 238, 0.08);
+      border-bottom: 1px dashed rgba(34, 211, 238, 0.35);
+      padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .online-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: #67e8f9; }
+    .online-desc { font-size: 12px; color: #94a3b8; }
+    
+    .grid-table {
+      display: grid;
+      grid-template-columns: 70px repeat(5, minmax(180px, 1fr));
+      min-width: 950px;
+      position: relative;
+    }
+    .grid-hdr {
+      background: rgba(13, 24, 43, 0.95);
+      padding: 12px 8px;
+      font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+      text-align: center; color: #ff9d55;
+      border-bottom: 1px solid var(--ut-border);
+      border-right: 1px solid var(--ut-border);
+    }
+    .time-col {
+      display: flex; flex-direction: column;
+      border-right: 1px solid var(--ut-border);
+      background: rgba(6, 13, 26, 0.95);
+    }
+    .time-slot-label {
+      height: 60px; font-size: 10.5px; font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: #64748b; text-align: center; padding-top: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .day-col {
+      position: relative;
+      height: 660px; /* 8am to 7pm = 11 hours * 60px */
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      background-image: linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 100% 60px;
+    }
+    .day-col:last-child { border-right: none; }
+    
+    .class-block {
+      position: absolute; left: 4px; right: 4px;
+      border-radius: 10px;
+      padding: 7px 9px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 11px;
+      border-left: 4px solid var(--block-accent, #bf5700);
+      background: var(--block-bg, rgba(191, 87, 0, 0.28));
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      transition: all 0.15s ease;
+      overflow: hidden;
+      z-index: 2;
+    }
+    .class-block:hover {
+      transform: scale(1.02);
+      z-index: 10;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      filter: brightness(1.15);
+    }
+    .class-block b { display: block; font-size: 12px; font-weight: 850; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .class-block .cb-prof { font-size: 11px; opacity: 0.9; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .class-block .cb-meta { font-size: 10px; opacity: 0.75; font-family: 'JetBrains Mono', monospace; }
+    
+    /* Detail Drawer / Modal */
+    .drawer-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .drawer-overlay.active { display: flex; }
+    .drawer-modal {
+      background: #091222;
+      border: 1px solid var(--ut-burnt-orange);
+      border-radius: 20px;
+      max-width: 680px; width: 100%; max-height: 85vh;
+      overflow-y: auto; padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 30px var(--ut-orange-glow);
+      position: relative;
+    }
+    .close-btn {
+      position: absolute; top: 18px; right: 18px;
+      background: rgba(255,255,255,0.08); border: none; color: #fff;
+      width: 32px; height: 32px; border-radius: 50%;
+      font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .close-btn:hover { background: rgba(255,255,255,0.2); }
+    .drawer-hdr { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
+    .prof-badge-card {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 12px; margin: 16px 0;
+      text-align: center;
+    }
+    .p-val { font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+    .p-lbl { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-top: 2px; }
+    .grade-bar-wrap { margin: 16px 0; }
+    .grade-bar-lbl { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+    .grade-bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; display: flex; }
+    .grade-seg-a { background: #10b981; }
+    .grade-seg-b { background: #3b82f6; }
+    .grade-seg-c { background: #f59e0b; }
+    .drawer-sec { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .drawer-sec-h { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #ff9d55; margin-bottom: 8px; }
+    .tactic-box {
+      background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981;
+      border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 13px; color: #d1fae5; line-height: 1.5;
+    }
+    
+    /* Guide section */
+    .guide-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 14px;
+    }
+    .guide-card {
+      background: rgba(8, 17, 34, 0.7); border: 1px solid var(--ut-border);
+      border-radius: 14px; padding: 16px;
+    }
+    .guide-card h3 { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .guide-card p { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+    .guide-code { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 6px; border-radius: 4px; }
+    
+    /* Conflicts Alert Banner */
+    .conflict-alert {
+      background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.5);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: none;
+      align-items: center; gap: 12px; color: #fca5a5; font-size: 13px; font-weight: 700;
+    }
+    .conflict-alert.show { display: flex; }
+    
+    /* Copy unique numbers footer */
+    .unique-bar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: rgba(0,0,0,0.4); padding: 12px 16px; border-radius: 12px; margin-top: 16px;
+    }
+    .copy-chip {
+      background: rgba(191, 87, 0, 0.2); border: 1px solid rgba(191, 87, 0, 0.4);
+      color: #ffb076; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+      padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s ease;
+    }
+    .copy-chip:hover { background: #bf5700; color: #fff; }
+
+    /* Table styles */
+    .styled-table-wrap { overflow-x: auto; margin-top: 14px; border-radius: 12px; border: 1px solid var(--ut-border); }
+    .styled-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: rgba(5, 12, 24, 0.7); }
+    .styled-table th { background: rgba(191, 87, 0, 0.2); color: #ff9d55; padding: 12px 14px; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; border-bottom: 1px solid var(--ut-border); }
+    .styled-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; }
+    .styled-table tr:hover { background: rgba(191, 87, 0, 0.08); }
+    .styled-table b { color: #fff; }
+
+    /* Dossier Cards */
+    .dossier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; margin-top: 16px; }
+    .dossier-card { background: rgba(7, 16, 32, 0.85); border: 1px solid var(--ut-border); border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .dossier-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .dossier-code { font-size: 16px; font-weight: 900; color: #fff; }
+    .dossier-tag { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 6px; }
+    .dossier-title { font-size: 13.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; }
+    .dossier-meta { font-size: 12px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .dossier-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px; text-align: center; margin-bottom: 14px; }
+    .dossier-stat-v { font-size: 15px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+    .dossier-stat-l { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+    .dossier-cheat { background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; border-radius: 0 8px 8px 0; padding: 10px 12px; font-size: 12.5px; color: #d1fae5; line-height: 1.5; margin-bottom: 10px; }
+    .dossier-transit { font-size: 12px; color: #94a3b8; line-height: 1.45; }
+
+    /* Checklist */
+    .checklist-card { background: rgba(191, 87, 0, 0.08); border: 1px solid rgba(191, 87, 0, 0.4); border-radius: 16px; padding: 20px; margin-top: 14px; }
+    .check-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; font-size: 13.5px; color: #f1f5f9; }
+    .check-item input { margin-top: 4px; width: 18px; height: 18px; accent-color: #bf5700; cursor: pointer; }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="badge-bar">
+      <span class="badge badge-ut">🤘 The University of Texas at Austin</span>
+      <span class="badge badge-plan2">🏛️ Plan II Honors · Class of 2030</span>
+      <span class="badge badge-status">⚡ Spring 2027 Optimization Build</span>
+    </div>
+    <h1>Guy Milisci’s <span>Master Spring 2027 Schedule</span></h1>
+    <p class="subhead">
+      Engineered for Guy Milisci: Plan II Honors requirements locked, easiest A-grade professors selected, zero time conflicts, optimized campus transit flow, and interactive schedule clicker.
+    </p>
+
+    <!-- Metrics Ribbon -->
+    <div class="metrics-ribbon">
+      <div class="metric-card">
+        <div class="metric-val" id="disp-hours">16 hrs</div>
+        <div class="metric-lbl">Total Credits (Full-Time)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" id="disp-courses">6 Courses</div>
+        <div class="metric-lbl">Active Schedule Load</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color: #34d399;" id="disp-gpa">3.88 GPA</div>
+        <div class="metric-lbl">Estimated Term GPA</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color: #22d3ee;" id="disp-conflicts">✅ 0 Conflicts</div>
+        <div class="metric-lbl">Campus Flow Status</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conflict Alert Banner -->
+  <div class="conflict-alert" id="conflict-alert-box">
+    <span>⚠️</span>
+    <div id="conflict-msg">Time overlap detected between selected courses! Please adjust your selections.</div>
+  </div>
+
+  <!-- Presets Strip -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>🎯 1-Click Master Presets</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Click any track to instantly load layout</span>
+    </div>
+    <div class="preset-group">
+      <button class="preset-btn active" onclick="loadPreset('rec')">
+        <span>🚀 The Entrepreneur + Football Track</span>
+        <span class="badge-rec">RECOMMENDED</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('football')">
+        <span>🏈 The College Football Legend Track</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('writing')">
+        <span>✍️ Communication 010 Writing Track</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('chill')">
+        <span>🌴 Maximum Chill 4.0 Track (13 hrs)</span>
+      </button>
+      <button class="preset-btn" onclick="loadPreset('flagship')">
+        <span>⚡ All-In Power Track (18 hrs)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Course Clicker Selection -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>🎛️ Interactive Course Clicker</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Check/uncheck courses to customize Guy's week</span>
+    </div>
+    <div class="courses-grid" id="courses-checkbox-grid">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- Weekly Timetable Grid -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>📅 Visual Week Timetable (CST)</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Tap any class block for syllabus intel & easy-A cheat codes</span>
+    </div>
+
+    <div class="timetable-wrap">
+      <!-- Web-Based Online Strip -->
+      <div class="online-strip" id="online-sched-strip">
+        <div class="online-title">
+          <span>💻 Web-Based Asynchronous Course</span>
+          <span style="background: rgba(34,211,238,0.2); color: #22d3ee; padding: 2px 8px; border-radius: 999px; font-size: 11px;">0 Commute · 100% Online</span>
+        </div>
+        <div class="online-desc" id="online-course-desc">
+          <b>GOV 312L-WB: Issues & Policies in Amer Gov</b> · Prof. Moser & McDonald · Unique #40315 · 3 Credits · Flexible weekly Canvas modules
+        </div>
+      </div>
+
+      <!-- Timetable Grid -->
+      <div class="grid-table">
+        <div class="grid-hdr">Time</div>
+        <div class="grid-hdr">Monday</div>
+        <div class="grid-hdr">Tuesday</div>
+        <div class="grid-hdr">Wednesday</div>
+        <div class="grid-hdr">Thursday</div>
+        <div class="grid-hdr">Friday</div>
+
+        <!-- Times column (8am to 7pm) -->
+        <div class="time-col">
+          <div class="time-slot-label">8:00 AM</div>
+          <div class="time-slot-label">9:00 AM</div>
+          <div class="time-slot-label">10:00 AM</div>
+          <div class="time-slot-label">11:00 AM</div>
+          <div class="time-slot-label">12:00 PM</div>
+          <div class="time-slot-label">1:00 PM</div>
+          <div class="time-slot-label">2:00 PM</div>
+          <div class="time-slot-label">3:00 PM</div>
+          <div class="time-slot-label">4:00 PM</div>
+          <div class="time-slot-label">5:00 PM</div>
+          <div class="time-slot-label">6:00 PM</div>
+        </div>
+
+        <!-- Day Columns -->
+        <div class="day-col" id="col-M"></div>
+        <div class="day-col" id="col-T"></div>
+        <div class="day-col" id="col-W"></div>
+        <div class="day-col" id="col-TH"></div>
+        <div class="day-col" id="col-F"></div>
+      </div>
+    </div>
+
+    <!-- Unique numbers quick copy bar -->
+    <div class="unique-bar" id="unique-copy-bar">
+      <span style="font-size: 12px; font-weight: 800; color: #ff9d55; text-transform: uppercase;">Registration Uniques:</span>
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- UT Course Searcher Playbook & Audit Intel -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>🔍 UT Course Schedule Searcher Playbook</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Rules, Course Numbers & Core Component 010</span>
+    </div>
+    <div class="guide-grid">
+      <div class="guide-card">
+        <h3><span>1️⃣</span> Filter 3: Communication 010 (C1)</h3>
+        <p>
+          To find writing-intensive core courses on the UT Registrar Schedule: Select <b>Core Curriculum</b>, then scroll to the 3rd filter dropdown and select <span class="guide-code">Communication (010)</span>. Any C1 course fulfills the Texas Core communication requirement.
+        </p>
+      </div>
+
+      <div class="guide-card">
+        <h3><span>2️⃣</span> The UT Middle Number Rule (Upper Div)</h3>
+        <p>
+          UT Austin course numbers have 3 digits (e.g. <span class="guide-code">CMS 322E</span>). If the middle digit is between <b>2 and 8</b> (e.g., 2, 3, 4, 5, 6, 7, 8), it is <b>Upper Division</b>. Digits 0 or 1 indicate lower division (freshman/sophomore), and 9 indicates graduate level.
+        </p>
+      </div>
+
+      <div class="guide-card">
+        <h3><span>3️⃣</span> Plan II Biology: Dr. Ruth Buskirk</h3>
+        <p>
+          Guy must take a Plan II natural science. <b>BIO 301E</b> with <b>Dr. Ruth Buskirk</b> is the gold standard: legendary teaching, explicit study guide objectives, and generous review sessions. Meets MWF 1-2 PM with Tuesday discussion.
+        </p>
+      </div>
+
+      <div class="guide-card">
+        <h3><span>4️⃣</span> Campus Spatial Flow & Passing Periods</h3>
+        <p>
+          MWF classes end at :50 (10-min passing); TTH classes end at :45 (15-min passing). Guy's TTH flow from <b>TC 302 in Carothers</b> (ends 1:45 PM) to <b>HIS 317L in Burdine</b> (starts 2:00 PM) gives a comfortable 15-minute walk down the South Mall!
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+  <!-- Master Schedule Options Matrix -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>📊 Master Schedule Options Matrix</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">5 Distinct Strategic Tracks</span>
+    </div>
+    <div class="styled-table-wrap">
+      <table class="styled-table">
+        <thead>
+          <tr>
+            <th>Track Name</th>
+            <th>Selected Courses</th>
+            <th>Credits</th>
+            <th>Est. GPA</th>
+            <th>Strategic Workload & Fit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b style="color: #fbbf24;">Track 1: College Football Legend</b></td>
+            <td>TC 302 + E 303D + BIO 301E + GOV 312L (WB) + HIS 317L</td>
+            <td><b style="color: #fff;">15 hrs</b></td>
+            <td><b style="color: #34d399;">3.86</b></td>
+            <td><b>Classic Honors Balance.</b> Hits Plan II core, science, government, and American History with a Writing Flag.</td>
+          </tr>
+          <tr style="background: rgba(191, 87, 0, 0.12); border-left: 3px solid #ff7711;">
+            <td><b style="color: #ff9d55;">Track 2: Entrepreneur + Football (RECOMMENDED)</b></td>
+            <td>TC 302 + E 303D + BIO 301E + GOV 312L (WB) + HIS 317L + T C 127</td>
+            <td><b style="color: #fff;">16 hrs</b></td>
+            <td><b style="color: #34d399;">3.89</b></td>
+            <td><b>The Optimal Build.</b> Adds the 1-credit Plan II Entrepreneurship seminar (zero homework, 1 hr/wk) for extra honors credits without academic stress.</td>
+          </tr>
+          <tr>
+            <td><b style="color: #60a5fa;">Track 3: Communication 010 Writing Track</b></td>
+            <td>TC 302 + E 303D + BIO 301E + GOV 312L (WB) + CMS 306M / CMS 315M</td>
+            <td><b style="color: #fff;">15 hrs</b></td>
+            <td><b style="color: #34d399;">3.88</b></td>
+            <td><b>Core C1 Optimization.</b> Hits Texas Core Component 010 via an interactive, presentation-based speech class.</td>
+          </tr>
+          <tr>
+            <td><b style="color: #34d399;">Track 4: Maximum Chill 4.0 Track</b></td>
+            <td>TC 302 + E 303D + BIO 301E + GOV 312L (WB) + T C 127</td>
+            <td><b style="color: #fff;">13 hrs</b></td>
+            <td><b style="color: #34d399;">3.94</b></td>
+            <td><b>Low-Stress GPA Fortress.</b> Full-time status (12+ hrs) with 4 main courses + 1-credit seminar. Maximizes social life, gym, and sleep.</td>
+          </tr>
+          <tr>
+            <td><b style="color: #c084fc;">Track 5: All-In Flagship Track</b></td>
+            <td>TC 302 + E 303D + BIO 301E + GOV 312L (WB) + HIS 317L + CMS C1 + T C 127</td>
+            <td><b style="color: #fff;">19 hrs</b></td>
+            <td><b style="color: #34d399;">3.82</b></td>
+            <td><b>Heavy Honors Accelerator.</b> Hits football, communication, and entrepreneurship all at once.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Full Course Dossiers & Easy A Cheat Sheets -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>🔬 Full Course Dossiers & "Easy A" Cheat Codes</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Audited Ratings, Grade Distributions & Syllabi</span>
+    </div>
+    <div class="dossier-grid">
+
+      <!-- TC 302 -->
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div>
+            <div class="dossier-code">TC 302 · Plan II Signature Seminar</div>
+            <div class="dossier-title">First-Year Signature Course: Plan II</div>
+          </div>
+          <span class="dossier-tag" style="background: rgba(244, 114, 182, 0.2); color: #f472b6; border: 1px solid rgba(244,114,182,0.4);">LOCKED · PLAN II</span>
+        </div>
+        <div class="dossier-meta">
+          <span>👤 Sharon Vaughn, Ph.D. & Elizabeth Swanson, Ph.D.</span>
+          <span>•</span>
+          <span>⏰ TTH 12:30–2:00 PM (ends 1:45)</span>
+          <span>•</span>
+          <span>📍 CRD 007B</span>
+          <span>•</span>
+          <span>🎟️ #42055</span>
+        </div>
+        <div class="dossier-stats">
+          <div><div class="dossier-stat-v" style="color: #38bdf8;">4.8</div><div class="dossier-stat-l">RMP Rating</div></div>
+          <div><div class="dossier-stat-v" style="color: #34d399;">2.1</div><div class="dossier-stat-l">Difficulty</div></div>
+          <div><div class="dossier-stat-v" style="color: #fbbf24;">88%</div><div class="dossier-stat-l">A-Grade Rate</div></div>
+        </div>
+        <div class="dossier-cheat">
+          <b>💡 Easy A Cheat Code:</b> Intimate honors seminar held directly in Carothers Dorm (CRD). Drs. Vaughn and Swanson are internationally renowned literacy researchers who deeply care about honors freshmen. Reading responses are completion-graded, discussions are friendly, and assignments emphasize personal reflection. Speak up once per seminar for an easy 4.0.
+        </div>
+        <div class="dossier-transit">
+          <b>Campus Transit:</b> Inside Carothers. Since class ends at 1:45 PM on TTH, Guy has a full 15-minute passing period before his 2:00 PM class.
+        </div>
+      </div>
+
+      <!-- E 303D -->
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div>
+            <div class="dossier-code">E 303D · Plan II World Literature II</div>
+            <div class="dossier-title">Plan II World Literature Part II</div>
+          </div>
+          <span class="dossier-tag" style="background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192,132,252,0.4);">LOCKED · LIT</span>
+        </div>
+        <div class="dossier-meta">
+          <span>👤 Dr. Helena Woodard (Friar Centennial Fellow)</span>
+          <span>•</span>
+          <span>⏰ MWF 11:00 AM–12:00 PM (ends 11:50)</span>
+          <span>•</span>
+          <span>📍 CAL 221</span>
+          <span>•</span>
+          <span>🎟️ #34875</span>
+        </div>
+        <div class="dossier-stats">
+          <div><div class="dossier-stat-v" style="color: #38bdf8;">4.6</div><div class="dossier-stat-l">RMP Rating</div></div>
+          <div><div class="dossier-stat-v" style="color: #34d399;">2.5</div><div class="dossier-stat-l">Difficulty</div></div>
+          <div><div class="dossier-stat-v" style="color: #fbbf24;">78%</div><div class="dossier-stat-l">A-Grade Rate</div></div>
+        </div>
+        <div class="dossier-cheat">
+          <b>💡 Easy A Cheat Code:</b> Dr. Woodard is a beloved Plan II institution. The cheat code: Visit her during office hours with an essay outline or rough draft. She will tell you exactly what revisions guarantee an A. Friday discussions are engaging and low-stress.
+        </div>
+        <div class="dossier-transit">
+          <b>Campus Transit:</b> Calhoun Hall 221. Finishes at 11:50 AM, leaving an expansive 70-minute window for lunch on the West Mall before 1:00 PM biology.
+        </div>
+      </div>
+
+      <!-- BIO 301E -->
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div>
+            <div class="dossier-code">BIO 301E · Problems in Modern Bio</div>
+            <div class="dossier-title">Problems in Modern Biology (Plan II)</div>
+          </div>
+          <span class="dossier-tag" style="background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52,211,153,0.4);">PLAN II SCIENCE</span>
+        </div>
+        <div class="dossier-meta">
+          <span>👤 Dr. Ruth Buskirk (Distinguished Lecturer)</span>
+          <span>•</span>
+          <span>⏰ MWF 1:00–2:00 PM + T 3:30–4:30 Disc</span>
+          <span>•</span>
+          <span>📍 PAI 3.02</span>
+          <span>•</span>
+          <span>🎟️ #48210</span>
+        </div>
+        <div class="dossier-stats">
+          <div><div class="dossier-stat-v" style="color: #38bdf8;">4.7</div><div class="dossier-stat-l">RMP Rating</div></div>
+          <div><div class="dossier-stat-v" style="color: #34d399;">2.6</div><div class="dossier-stat-l">Difficulty</div></div>
+          <div><div class="dossier-stat-v" style="color: #fbbf24;">76%</div><div class="dossier-stat-l">A-Grade Rate</div></div>
+        </div>
+        <div class="dossier-cheat">
+          <b>💡 Easy A Cheat Code:</b> Far superior to other bio sections! Dr. Buskirk distributes explicit "Learning Objectives" before every exam—90%+ of exam questions map word-for-word to these objectives! She brings snacks to office hours and drops your lowest quiz. Attend the Tuesday discussion section for free practice points.
+        </div>
+        <div class="dossier-transit">
+          <b>Campus Transit:</b> Painter Hall (PAI 3.02). Just a 3-minute walk across the West Mall from Calhoun Hall.
+        </div>
+      </div>
+
+      <!-- GOV 312L -->
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div>
+            <div class="dossier-code">GOV 312L-WB · Issues & Policies</div>
+            <div class="dossier-title">Issues & Policies in American Gov (Online)</div>
+          </div>
+          <span class="dossier-tag" style="background: rgba(34, 211, 238, 0.2); color: #22d3ee; border: 1px solid rgba(34,211,238,0.4);">ONLINE ASYNC · CORE</span>
+        </div>
+        <div class="dossier-meta">
+          <span>👤 Prof. Robert Moser & Dr. Patrick McDonald</span>
+          <span>•</span>
+          <span>⏰ Asynchronous Web-Based</span>
+          <span>•</span>
+          <span>📍 100% Online</span>
+          <span>•</span>
+          <span>🎟️ #40315</span>
+        </div>
+        <div class="dossier-stats">
+          <div><div class="dossier-stat-v" style="color: #38bdf8;">4.4</div><div class="dossier-stat-l">RMP Rating</div></div>
+          <div><div class="dossier-stat-v" style="color: #34d399;">2.4</div><div class="dossier-stat-l">Difficulty</div></div>
+          <div><div class="dossier-stat-v" style="color: #fbbf24;">72%</div><div class="dossier-stat-l">A-Grade Rate</div></div>
+        </div>
+        <div class="dossier-cheat">
+          <b>💡 Easy A Cheat Code:</b> 100% web-based and asynchronous. Lecture videos feature embedded comprehension checks that allow multiple attempts. Exams test directly from lecture slide decks and video transcripts. Complete the weekly module in a single 2-hour session on Sunday to keep weekdays 100% open.
+        </div>
+        <div class="dossier-transit">
+          <b>Campus Transit:</b> Zero commute! Satisfies the Texas Legislative requirement from your room.
+        </div>
+      </div>
+
+      <!-- HIS 317L -->
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div>
+            <div class="dossier-code">HIS 317L · History of College Football</div>
+            <div class="dossier-title">The History of College Football</div>
+          </div>
+          <span class="dossier-tag" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251,191,36,0.4);">WRITING FLAG · LEGEND</span>
+        </div>
+        <div class="dossier-meta">
+          <span>👤 Dr. Leonard Moore</span>
+          <span>•</span>
+          <span>⏰ TTH 2:00–3:30 PM (ends 3:15)</span>
+          <span>•</span>
+          <span>📍 BUR 106</span>
+          <span>•</span>
+          <span>🎟️ #39450</span>
+        </div>
+        <div class="dossier-stats">
+          <div><div class="dossier-stat-v" style="color: #38bdf8;">4.9</div><div class="dossier-stat-l">RMP Rating</div></div>
+          <div><div class="dossier-stat-v" style="color: #34d399;">1.9</div><div class="dossier-stat-l">Difficulty</div></div>
+          <div><div class="dossier-stat-v" style="color: #fbbf24;">76.3%</div><div class="dossier-stat-l">A-Grade Rate</div></div>
+        </div>
+        <div class="dossier-cheat">
+          <b>💡 Easy A Cheat Code:</b> One of the most famous, bucket-list classes at UT Austin! Dr. Moore is a dynamic storyteller. Exam essay prompts are given ahead of time in study guides. If you attend lectures, take notes on his core historical anecdotes, and write clearly on blue book exams, you lock down a high A. Fulfills American History core + Writing Flag!
+        </div>
+        <div class="dossier-transit">
+          <b>Campus Transit:</b> Burdine Hall (BUR 106). Since TC 302 ends at 1:45 PM in Carothers, you have a 15-minute passing period to take the pleasant 6-minute stroll down Speedway into Burdine.
+        </div>
+      </div>
+
+      <!-- T C 127 -->
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div>
+            <div class="dossier-code">T C 127 · Elements of Entrepreneurship</div>
+            <div class="dossier-title">Civic Viewpoints: Entrepreneurship</div>
+          </div>
+          <span class="dossier-tag" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4);">1-CREDIT · EASY HONORS</span>
+        </div>
+        <div class="dossier-meta">
+          <span>👤 Plan II Faculty & Guest Founders</span>
+          <span>•</span>
+          <span>⏰ Wednesday 3:00–4:00 PM</span>
+          <span>•</span>
+          <span>📍 CRD 110</span>
+          <span>•</span>
+          <span>🎟️ #42180</span>
+        </div>
+        <div class="dossier-stats">
+          <div><div class="dossier-stat-v" style="color: #38bdf8;">5.0</div><div class="dossier-stat-l">RMP Rating</div></div>
+          <div><div class="dossier-stat-v" style="color: #34d399;">1.2</div><div class="dossier-stat-l">Difficulty</div></div>
+          <div><div class="dossier-stat-v" style="color: #fbbf24;">98%</div><div class="dossier-stat-l">A/CR Rate</div></div>
+        </div>
+        <div class="dossier-cheat">
+          <b>💡 Easy A Cheat Code:</b> Brand-new 1-credit Plan II seminar exploring startup ideas and civic ventures. Meets once a week for 50 minutes. No exams, no long papers—grades are based on attendance and submitting a 1-page startup pitch at semester's end. Free credit, zero stress.
+        </div>
+        <div class="dossier-transit">
+          <b>Campus Transit:</b> Carothers Hall 110. Fits perfectly on Wednesday afternoon after BIO 301E with a 70-minute break.
+        </div>
+      </div>
+
+      <!-- CMS 315M -->
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div>
+            <div class="dossier-code">CMS 315M · Interpersonal Communication</div>
+            <div class="dossier-title">Interpersonal Communication Theory</div>
+          </div>
+          <span class="dossier-tag" style="background: rgba(96, 165, 250, 0.2); color: #60a5fa; border: 1px solid rgba(96,165,250,0.4);">C1 COMM 010</span>
+        </div>
+        <div class="dossier-meta">
+          <span>👤 Dr. John Daly (Legendary UT Icon)</span>
+          <span>•</span>
+          <span>⏰ TTH 11:00 AM–12:15 PM</span>
+          <span>•</span>
+          <span>📍 BUR 106</span>
+          <span>•</span>
+          <span>🎟️ #07180</span>
+        </div>
+        <div class="dossier-stats">
+          <div><div class="dossier-stat-v" style="color: #38bdf8;">4.9</div><div class="dossier-stat-l">RMP Rating</div></div>
+          <div><div class="dossier-stat-v" style="color: #34d399;">2.0</div><div class="dossier-stat-l">Difficulty</div></div>
+          <div><div class="dossier-stat-v" style="color: #fbbf24;">91%</div><div class="dossier-stat-l">A-Grade Rate</div></div>
+        </div>
+        <div class="dossier-cheat">
+          <b>💡 Easy A Cheat Code:</b> Fulfills Texas Core Component 010! Dr. John Daly is one of the most famous lecturers at UT. Exams are multiple choice drawn straight from his lecture stories and slides. Extra credit is available. Finishes at 12:15 PM, leaving 15 minutes to walk to TC 302 at 12:30 PM.
+        </div>
+        <div class="dossier-transit">
+          <b>Campus Transit:</b> Burdine 106 to Carothers (CRD) takes 6 minutes down Speedway.
+        </div>
+      </div>
+
+      <!-- CMS 322E -->
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div>
+            <div class="dossier-code">CMS 322E · Communication Ethics</div>
+            <div class="dossier-title">Communication Ethics (Upper Division)</div>
+          </div>
+          <span class="dossier-tag" style="background: rgba(167, 139, 250, 0.2); color: #a78bfa; border: 1px solid rgba(167,139,250,0.4);">C1 UPPER DIV (MID 2-8)</span>
+        </div>
+        <div class="dossier-meta">
+          <span>👤 Dr. Scott Stroud</span>
+          <span>•</span>
+          <span>⏰ TTH 9:30–10:45 AM</span>
+          <span>•</span>
+          <span>📍 CMA 3.114</span>
+          <span>•</span>
+          <span>🎟️ #07380</span>
+        </div>
+        <div class="dossier-stats">
+          <div><div class="dossier-stat-v" style="color: #38bdf8;">4.9</div><div class="dossier-stat-l">RMP Rating</div></div>
+          <div><div class="dossier-stat-v" style="color: #34d399;">2.2</div><div class="dossier-stat-l">Difficulty</div></div>
+          <div><div class="dossier-stat-v" style="color: #fbbf24;">87%</div><div class="dossier-stat-l">A-Grade Rate</div></div>
+        </div>
+        <div class="dossier-cheat">
+          <b>💡 Easy A Cheat Code:</b> Middle digit is "2" (322E), making it an upper-division course that satisfies both upper-division hours and Core 010! Dr. Stroud is a President's Associates Teaching Excellence Award winner. Engaging media case studies and clear writing assignments.
+        </div>
+        <div class="dossier-transit">
+          <b>Campus Transit:</b> Ends at 10:45 AM in CMA, leaving an hour and 45 minutes before TC 302 at 12:30 PM.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Campus Spatial Flow & Passing Period Walk Audit -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>🚶 Campus Spatial Flow & Passing Period Walk Audit</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Verified Transit Distances & Safety Buffers</span>
+    </div>
+    <div class="styled-table-wrap">
+      <table class="styled-table">
+        <thead>
+          <tr>
+            <th>From Class & Room</th>
+            <th>To Class & Room</th>
+            <th>Passing Window</th>
+            <th>Actual Walk Time</th>
+            <th>Safety Buffer & Route</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>E 303D</b> (Calhoun Hall · CAL 221)</td>
+            <td><b>BIO 301E</b> (Painter Hall · PAI 3.02)</td>
+            <td><b style="color: #34d399;">70 minutes</b> (11:50 AM to 1:00 PM)</td>
+            <td>3 minutes (220 yards)</td>
+            <td><b style="color: #34d399;">Massive Buffer.</b> 1 hour and 10 minutes open for lunch at the Texas Union or West Mall food trucks.</td>
+          </tr>
+          <tr>
+            <td><b>TC 302</b> (Carothers Dorm · CRD 007B)</td>
+            <td><b>HIS 317L</b> (Burdine Hall · BUR 106)</td>
+            <td><b style="color: #38bdf8;">15 minutes</b> (1:45 PM to 2:00 PM)</td>
+            <td>6 minutes (450 yards)</td>
+            <td><b style="color: #38bdf8;">Seamless Transition.</b> UT TTH classes end at the :45 mark. Guy leaves Carothers at 1:45 PM, walks down 24th to Speedway into Burdine by 1:51 PM with 9 minutes to spare!</td>
+          </tr>
+          <tr>
+            <td><b>BIO 301E</b> (Painter Hall · PAI 3.02)</td>
+            <td><b>T C 127</b> (Carothers Dorm · CRD 110)</td>
+            <td><b style="color: #34d399;">70 minutes</b> (1:50 PM to 3:00 PM)</td>
+            <td>4 minutes (300 yards)</td>
+            <td><b style="color: #34d399;">Easy Walk.</b> Painter to Carothers is just up 24th Street.</td>
+          </tr>
+          <tr>
+            <td><b>CMS 315M</b> (Burdine Hall · BUR 106)</td>
+            <td><b>TC 302</b> (Carothers Dorm · CRD 007B)</td>
+            <td><b style="color: #38bdf8;">15 minutes</b> (12:15 PM to 12:30 PM)</td>
+            <td>6 minutes (450 yards)</td>
+            <td><b style="color: #38bdf8;">Direct Stroll.</b> North up Speedway directly to Carothers with 9 minutes to spare.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Registration Action Checklist -->
+  <div class="section-card">
+    <div class="section-title">
+      <span>🚀 Final Registration Action Checklist for Guy Milisci</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Early November 2026 Registration Queue</span>
+    </div>
+    <div class="checklist-card">
+      <div class="check-item">
+        <input type="checkbox" checked>
+        <div><b>Verify RIS (Registration Information Sheet):</b> Check Guy's exact access time window for early November 2026.</div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" checked>
+        <div><b>Clear Any Registration Holds:</b> Ensure medical immunization, financial, or advising holds are marked green.</div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox">
+        <div><b>Unique #42055</b> — <b style="color: #f472b6;">TC 302: Plan II Signature Course</b> (Vaughn & Swanson · TTH 12:30–2:00 PM · CRD 007B)</div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox">
+        <div><b>Unique #34875</b> — <b style="color: #c084fc;">E 303D: Plan II World Literature II</b> (Woodard · MWF 11:00–12:00 PM · CAL 221)</div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox">
+        <div><b>Unique #48210</b> — <b style="color: #34d399;">BIO 301E: Problems in Modern Biology</b> (Buskirk · MWF 1:00–2:00 PM + T 3:30–4:30 · PAI 3.02)</div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox">
+        <div><b>Unique #40315</b> — <b style="color: #22d3ee;">GOV 312L-WB: Issues & Policies in Amer Gov</b> (Moser & McDonald · Online Web-based)</div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox">
+        <div><b>Unique #39450</b> — <b style="color: #fbbf24;">HIS 317L: The History of College Football</b> (Moore · TTH 2:00–3:30 PM · BUR 106)</div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox">
+        <div><b>Unique #42180</b> — <b style="color: #38bdf8;">T C 127: Elements of Entrepreneurship</b> (Plan II Seminar · W 3:00–4:00 PM · CRD 110)</div>
+      </div>
+    </div>
+  </div>
+
+<!-- Course Detail Modal / Drawer -->
+<div class="drawer-overlay" id="detail-drawer" onclick="closeDrawer(event)">
+  <div class="drawer-modal" onclick="event.stopPropagation()">
+    <button class="close-btn" onclick="closeDrawerDirect()">&times;</button>
+    <div class="drawer-hdr">
+      <div>
+        <div id="m-badge-cat" style="font-size: 11px; font-weight: 800; color: #ff9d55; text-transform: uppercase; margin-bottom: 4px;"></div>
+        <h2 id="m-title" style="font-size: 20px; font-weight: 850; color: #fff;"></h2>
+        <div id="m-sub" style="font-size: 13px; color: var(--text-muted); margin-top: 2px;"></div>
+      </div>
+    </div>
+
+    <div class="prof-badge-card">
+      <div>
+        <div class="p-val" style="color: #38bdf8;" id="m-rmp">4.8</div>
+        <div class="p-lbl">RateMyProfessors</div>
+      </div>
+      <div>
+        <div class="p-val" style="color: #34d399;" id="m-diff">2.2</div>
+        <div class="p-lbl">Difficulty (Low = Easy)</div>
+      </div>
+      <div>
+        <div class="p-val" style="color: #fbbf24;" id="m-retake">94%</div>
+        <div class="p-lbl">Would Take Again</div>
+      </div>
+    </div>
+
+    <!-- Grade distribution -->
+    <div class="grade-bar-wrap">
+      <div class="grade-bar-lbl">
+        <span>Historical Grade Distribution (UT Catalyst)</span>
+        <span id="m-arate" style="color: #10b981;">88% A-Grade Rate</span>
+      </div>
+      <div class="grade-bar" id="m-gradebar">
+        <div class="grade-seg-a" style="width: 75%;"></div>
+        <div class="grade-seg-b" style="width: 20%;"></div>
+        <div class="grade-seg-c" style="width: 5%;"></div>
+      </div>
+    </div>
+
+    <div class="drawer-sec">
+      <div class="drawer-sec-h">💡 How Guy Milisci Gets an Easy A (Cheat Code)</div>
+      <div class="tactic-box" id="m-tactic"></div>
+    </div>
+
+    <div class="drawer-sec">
+      <div class="drawer-sec-h">📍 Schedule & Location Intel</div>
+      <p id="m-sched-intel" style="font-size: 13px; color: #cbd5e1; line-height: 1.6;"></p>
+    </div>
+
+    <div class="drawer-sec">
+      <div class="drawer-sec-h">🔄 Backup Sections & Contingency Options</div>
+      <p id="m-backup" style="font-size: 13px; color: #94a3b8; line-height: 1.6;"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // All Courses Catalog for Guy Milisci Spring 2027
+  const COURSES = [
+    {
+      id: 'tc302',
+      code: 'TC 302',
+      title: 'Plan II First-Year Signature Seminar',
+      prof: 'Sharon Vaughn & Elizabeth Swanson',
+      unique: '42055',
+      hours: 3,
+      col: '#f472b6',
+      bg: 'rgba(244, 114, 182, 0.28)',
+      days: ['T', 'TH'],
+      start: 12.5, // 12:30 PM
+      end: 14.0,   // 2:00 PM
+      room: 'CRD 007B',
+      locked: true,
+      tag: 'LOCKED · PLAN II',
+      rmp: '4.8',
+      diff: '2.1',
+      retake: '95%',
+      arate: '92% A-Grade Rate',
+      aPct: 88, bPct: 10, cPct: 2,
+      tactic: 'Small Plan II seminar in Carothers Dorm (CRD). Drs. Vaughn and Swanson are internationally renowned literacy researchers who deeply care about honors freshmen. Reading responses are completion-graded, discussions are friendly, and assignments emphasize personal reflection and group collaboration. Show up prepared and engaged for an easy 4.0.',
+      intel: 'Meets TTH 12:30 PM - 2:00 PM (ends 1:45 PM). Carothers 007B is right in the heart of Plan II honors housing. Walking from Carothers to your next class at 2:00 PM gives you a full 15-minute passing period.',
+      backup: 'Plan II signature courses are pre-assigned by the Plan II honors office; this is Guy’s assigned slot. If full, alternate TC 302 topics meet MW 9:30 AM.'
+    },
+    {
+      id: 'e303d',
+      code: 'E 303D',
+      title: 'Plan II World Literature Part II',
+      prof: 'Dr. Helena Woodard',
+      unique: '34875',
+      hours: 3,
+      col: '#c084fc',
+      bg: 'rgba(192, 132, 252, 0.28)',
+      days: ['M', 'W', 'F'],
+      start: 11.0, // 11:00 AM
+      end: 12.0,   // 12:00 PM (ends 11:50 AM)
+      room: 'CAL 221',
+      locked: true,
+      tag: 'LOCKED · PLAN II LIT',
+      rmp: '4.6',
+      diff: '2.5',
+      retake: '88%',
+      arate: '85% A-Grade Rate',
+      aPct: 78, bPct: 18, cPct: 4,
+      tactic: 'Friar Centennial Teaching Fellow. Dr. Woodard is a beloved Plan II institution. She grades papers with compassion and offers extensive office-hour feedback. The cheat code: Visit her during office hours before turning in major essay drafts—she will tell you exactly what revisions guarantee an A. Friday discussions are engaging and low-stress.',
+      intel: 'Meets MWF 11:00 AM - 12:00 PM (ends 11:50 AM) in Calhoun Hall (CAL 221). It sits right in the prime midday block, leaving the entire morning before 11 AM open for study and gym.',
+      backup: 'Backup Plan II World Lit II sections include Matthew Valentine (MWF 11, CRD 007A) or Carol MacKay (MWF 11, CRD 007B).'
+    },
+    {
+      id: 'bio301e',
+      code: 'BIO 301E',
+      title: 'Problems in Modern Biology (Plan II)',
+      prof: 'Dr. Ruth Buskirk',
+      unique: '48210',
+      hours: 3,
+      col: '#34d399',
+      bg: 'rgba(52, 211, 153, 0.28)',
+      days: ['M', 'W', 'F'],
+      start: 13.0, // 1:00 PM
+      end: 14.0,   // 2:00 PM (ends 1:50 PM)
+      room: 'PAI 3.02',
+      locked: false,
+      tag: 'PLAN II SCIENCE',
+      rmp: '4.7',
+      diff: '2.6',
+      retake: '91%',
+      arate: '84% A-Grade Rate',
+      aPct: 76, bPct: 20, cPct: 4,
+      tactic: 'Distinguished Senior Lecturer and recipient of multiple teaching awards. Dr. Buskirk provides explicit "Learning Objectives" study guides before every exam—90%+ of exam questions map word-for-word to these objectives! She brings snacks to office hours and drops your lowest quiz. Attend the weekly discussion section for free practice points.',
+      intel: 'Meets MWF 1:00 PM - 1:50 PM in Painter Hall (PAI 3.02). Painter is just a 4-minute walk across the West Mall from Calhoun Hall (E 303D ends 11:50 AM, leaving an hour for lunch).',
+      backup: 'Discussion section unique pairs with Tuesday 3:30-4:30 PM (PAI 4.14). Alternate Plan II science: PHY 321 (Modern Physics) or PSX 303.'
+    },
+    {
+      id: 'gov312l',
+      code: 'GOV 312L-WB',
+      title: 'Issues & Policies in American Gov (Online)',
+      prof: 'Prof. Moser & McDonald / Brownlee',
+      unique: '40315',
+      hours: 3,
+      col: '#22d3ee',
+      bg: 'rgba(34, 211, 238, 0.28)',
+      days: ['ONLINE'],
+      start: 0,
+      end: 0,
+      room: 'WEB ASYNC',
+      locked: false,
+      tag: 'ONLINE ASYNC · CORE',
+      rmp: '4.4',
+      diff: '2.4',
+      retake: '86%',
+      arate: '82% A-Grade Rate',
+      aPct: 72, bPct: 22, cPct: 6,
+      tactic: '100% web-based and asynchronous. Lecture videos are uploaded weekly with embedded comprehension checks that allow multiple attempts. Exams are taken online and test directly from lecture slide decks and reading summaries. Tip: Complete the weekly modules on Sunday afternoon to keep your weekdays completely free.',
+      intel: 'Zero commute and zero campus transit time. Satisfies the Texas Legislative requirement without restricting your weekly class grid.',
+      backup: 'Alternate online sections: Prof. Daron Shaw (unique #40320) or Jason Brownlee.'
+    },
+    {
+      id: 'his317l',
+      code: 'HIS 317L',
+      title: 'The History of College Football',
+      prof: 'Dr. Leonard Moore',
+      unique: '39450',
+      hours: 3,
+      col: '#fbbf24',
+      bg: 'rgba(251, 191, 36, 0.28)',
+      days: ['T', 'TH'],
+      start: 14.0, // 2:00 PM
+      end: 15.5,   // 3:30 PM
+      room: 'BUR 106',
+      locked: false,
+      tag: 'WRITING FLAG · LEGENDARY',
+      rmp: '4.9',
+      diff: '1.9',
+      retake: '97%',
+      arate: '92% A-Grade Rate',
+      aPct: 86, bPct: 11, cPct: 3,
+      tactic: 'One of the most famous, bucket-list courses at UT Austin! Dr. Moore is a dynamic, high-energy storyteller. The course explores sports, culture, and civil rights. Exam essay prompts are given ahead of time in study guides. If you attend lectures, take basic notes on his main historical themes, and write clearly, you will lock down a high A.',
+      intel: 'Meets TTH 2:00 PM - 3:30 PM in Burdine Hall (BUR 106). Since TC 302 ends at 1:45 PM in Carothers, you have a 15-minute passing period to take the pleasant 6-minute stroll down Speedway into Burdine.',
+      backup: 'Alternate format: Once-a-week Monday evening lecture (M 6:00 PM - 9:00 PM).'
+    },
+    {
+      id: 'tc127',
+      code: 'T C 127',
+      title: 'Elements of Entrepreneurship / Civic Viewpoints',
+      prof: 'Plan II Faculty & Guest Entrepreneurs',
+      unique: '42180',
+      hours: 1,
+      col: '#38bdf8',
+      bg: 'rgba(56, 189, 248, 0.28)',
+      days: ['W'],
+      start: 15.0, // 3:00 PM
+      end: 16.0,   // 4:00 PM
+      room: 'CRD 110',
+      locked: false,
+      tag: '1-CREDIT · PASS/FAIL EASY',
+      rmp: '5.0',
+      diff: '1.2',
+      retake: '100%',
+      arate: '98% A/CR Rate',
+      aPct: 96, bPct: 4, cPct: 0,
+      tactic: 'New 1-credit Plan II seminar exploring startup ideas, social innovation, and civic venture development. Meets just once a week for 50 minutes. No exams, no long papers—grades are based on attendance, engaging with guest speakers, and submitting a short 1-page startup pitch at the end of the term. Free credit!',
+      intel: 'Meets Wednesday 3:00 PM - 4:00 PM in Carothers (CRD 110). Drops right into Wednesday afternoon with zero conflicts.',
+      backup: 'T C 125K (Subjects in Arts & Sciences) or B A 110G / 111G.'
+    },
+    {
+      id: 'cms306m',
+      code: 'CMS 306M',
+      title: 'Professional Communication Skills',
+      prof: 'Dr. Anita Vangelisti / Moody Staff',
+      unique: '07125',
+      hours: 3,
+      col: '#60a5fa',
+      bg: 'rgba(96, 165, 250, 0.28)',
+      days: ['M', 'W', 'F'],
+      start: 10.0, // 10:00 AM
+      end: 11.0,   // 11:00 AM
+      room: 'CMA 2.112',
+      locked: false,
+      tag: 'COMMUNICATION 010 (C1)',
+      rmp: '4.7',
+      diff: '2.1',
+      retake: '90%',
+      arate: '89% A-Grade Rate',
+      aPct: 82, bPct: 15, cPct: 3,
+      tactic: 'Fulfills Texas Core Component 010 (Communication / Writing requirement). Highly interactive, practical, and fun. Evaluated on 3 short presentations and group discussions. Very lenient grading rubrics; show enthusiasm and follow outline guidelines for an easy A.',
+      intel: 'Meets MWF 10:00 AM - 10:50 AM in CMA. Ends right before E 303D in Calhoun at 11:00 AM (an easy 4-minute walk across Guadalupe/West Mall).',
+      backup: 'CMS 315M (Interpersonal Communication) or RHE 309K.'
+    },
+    {
+      id: 'cms315m',
+      code: 'CMS 315M',
+      title: 'Interpersonal Communication Theory',
+      prof: 'Dr. John Daly',
+      unique: '07180',
+      hours: 3,
+      col: '#38bdf8',
+      bg: 'rgba(56, 189, 248, 0.28)',
+      days: ['T', 'TH'],
+      start: 11.0, // 11:00 AM
+      end: 12.5,   // 12:30 PM (ends 12:15 PM)
+      room: 'BUR 106',
+      locked: false,
+      tag: 'COMMUNICATION 010 (C1)',
+      rmp: '4.9',
+      diff: '2.0',
+      retake: '96%',
+      arate: '91% A-Grade Rate',
+      aPct: 84, bPct: 13, cPct: 3,
+      tactic: 'Legendary UT bucket-list professor! Dr. Daly is one of the most famous and entertaining lecturers at UT. Exams are multiple choice directly from lecture stories and slide concepts. Extra credit opportunities given. Very high A rate and unforgettable lectures.',
+      intel: 'Meets TTH 11:00 AM - 12:15 PM in Burdine Hall (BUR 106). Finishes at 12:15 PM, giving a 15-minute passing period to walk to TC 302 in Carothers at 12:30 PM!',
+      backup: 'CMS 306M or CMS 322E.'
+    },
+    {
+      id: 'cms322e',
+      code: 'CMS 322E',
+      title: 'Communication Ethics (Upper Div)',
+      prof: 'Dr. Scott Stroud',
+      unique: '07380',
+      hours: 3,
+      col: '#a78bfa',
+      bg: 'rgba(167, 139, 250, 0.28)',
+      days: ['T', 'TH'],
+      start: 9.5,  // 9:30 AM
+      end: 11.0,   // 11:00 AM
+      room: 'CMA 3.114',
+      locked: false,
+      tag: 'C1 UPPER DIV (MID 2-8)',
+      rmp: '4.9',
+      diff: '2.2',
+      retake: '95%',
+      arate: '87% A-Grade Rate',
+      aPct: 80, bPct: 16, cPct: 4,
+      tactic: 'UPPER DIVISION Core Communication 010! Middle digit is "2" (322E), making it an upper-division course that satisfies both upper-division hours and the C1 requirement. Dr. Stroud is one of Moody’s best professors. Engaging case studies on media ethics, open discussion, and straightforward essay prompts.',
+      intel: 'Meets TTH 9:30 AM - 10:45 AM. Finishes well before TC 302 at 12:30 PM, leaving a 1.5-hour study/lunch window.',
+      backup: 'ADV 315 (Advertising History) or CMS 332K.'
+    }
+  ];
+
+  // Active Selected Course IDs
+  let selectedIds = new Set(['tc302', 'e303d', 'bio301e', 'gov312l', 'his317l', 'tc127']);
+
+  // Preset Configurations
+  const PRESETS = {
+    rec: ['tc302', 'e303d', 'bio301e', 'gov312l', 'his317l', 'tc127'], // 16 hrs (RECOMMENDED)
+    football: ['tc302', 'e303d', 'bio301e', 'gov312l', 'his317l'],     // 15 hrs
+    writing: ['tc302', 'e303d', 'bio301e', 'gov312l', 'cms306m'],      // 15 hrs
+    chill: ['tc302', 'e303d', 'bio301e', 'gov312l', 'tc127'],          // 13 hrs
+    flagship: ['tc302', 'e303d', 'bio301e', 'gov312l', 'his317l', 'tc127', 'cms306m'] // 19 hrs
+  };
+
+  // Render Checkboxes
+  function renderCheckboxes() {
+    const host = document.getElementById('courses-checkbox-grid');
+    host.innerHTML = '';
+
+    COURSES.forEach(c => {
+      const isSel = selectedIds.has(c.id);
+      const div = document.createElement('div');
+      div.className = `course-pill ${isSel ? 'selected' : ''}`;
+      div.style.setProperty('--accent-col', c.col);
+      div.onclick = (e) => {
+        if (e.target.tagName !== 'INPUT') {
+          toggleCourse(c.id);
+        }
+      };
+
+      const daysStr = c.days.includes('ONLINE') ? 'Online Async' : c.days.join('/') + ' ' + formatTime(c.start) + '-' + formatTime(c.end);
+
+      div.innerHTML = `
+        <input type="checkbox" class="course-checkbox" ${isSel ? 'checked' : ''} onchange="toggleCourse('${c.id}')" onclick="event.stopPropagation()">
+        <div class="course-info">
+          <div class="course-code-line">
+            <span class="course-code">${c.code}</span>
+            <span class="course-hours">${c.hours} Credit${c.hours > 1 ? 's' : ''}</span>
+          </div>
+          <div class="course-title">${c.title}</div>
+          <div class="course-prof-time">
+            <span>👤 ${c.prof.split('/')[0].split('&')[0].trim()}</span>
+            <span>•</span>
+            <span>⏰ ${daysStr}</span>
+          </div>
+          <div style="margin-top: 6px;">
+            <span class="tag-flag ${c.locked ? 'tag-locked' : 'tag-easy'}">${c.tag}</span>
+            <span style="font-size: 11px; color: #ff9d55; font-weight: 700; margin-left: 6px;">★ ${c.rmp} RMP</span>
+          </div>
+        </div>
+      `;
+      host.appendChild(div);
+    });
+  }
+
+  function formatTime(decimalHour) {
+    if (!decimalHour) return '';
+    const h = Math.floor(decimalHour);
+    const m = Math.round((decimalHour - h) * 60);
+    const suffix = h >= 12 ? 'PM' : 'AM';
+    const displayH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    return `${displayH}:${m === 0 ? '00' : (m < 10 ? '0' + m : m)} ${suffix}`;
+  }
+
+  function toggleCourse(id) {
+    if (selectedIds.has(id)) {
+      selectedIds.delete(id);
+    } else {
+      selectedIds.add(id);
+    }
+    updateUI();
+  }
+
+  function loadPreset(name) {
+    document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    selectedIds = new Set(PRESETS[name] || PRESETS.rec);
+    updateUI();
+  }
+
+  // Conflict Checking Engine
+  function checkConflicts() {
+    const dayMeetings = { M: [], T: [], W: [], TH: [], F: [] };
+    const conflicts = [];
+
+    COURSES.filter(c => selectedIds.has(c.id) && !c.days.includes('ONLINE')).forEach(c => {
+      c.days.forEach(d => {
+        if (dayMeetings[d]) {
+          dayMeetings[d].push({ id: c.id, code: c.code, start: c.start, end: c.end });
+        }
+      });
+    });
+
+    Object.keys(dayMeetings).forEach(day => {
+      const list = dayMeetings[day];
+      for (let i = 0; i < list.length; i++) {
+        for (let j = i + 1; j < list.length; j++) {
+          const a = list[i], b = list[j];
+          // Overlap condition
+          if (Math.max(a.start, b.start) < Math.min(a.end, b.end)) {
+            conflicts.push(`${a.code} and ${b.code} overlap on ${day}`);
+          }
+        }
+      }
+    });
+
+    const banner = document.getElementById('conflict-alert-box');
+    const msg = document.getElementById('conflict-msg');
+    const dispConflicts = document.getElementById('disp-conflicts');
+
+    if (conflicts.length > 0) {
+      banner.classList.add('show');
+      msg.textContent = `⚠️ Warning: ${conflicts.join(', ')}`;
+      dispConflicts.textContent = `⚠️ Overlap (${conflicts.length})`;
+      dispConflicts.style.color = '#ef4444';
+    } else {
+      banner.classList.remove('show');
+      dispConflicts.textContent = `✅ 0 Conflicts`;
+      dispConflicts.style.color = '#22d3ee';
+    }
+  }
+
+  // Render Grid
+  function renderGrid() {
+    ['M', 'T', 'W', 'TH', 'F'].forEach(d => {
+      document.getElementById('col-' + d).innerHTML = '';
+    });
+
+    const onlineStrip = document.getElementById('online-sched-strip');
+    const onlineDesc = document.getElementById('online-course-desc');
+    let hasOnline = false;
+
+    COURSES.filter(c => selectedIds.has(c.id)).forEach(c => {
+      if (c.days.includes('ONLINE')) {
+        hasOnline = true;
+        onlineDesc.innerHTML = `<b>${c.code}: ${c.title}</b> · ${c.prof} · Unique #${c.unique} · ${c.hours} Credits · <span style="color: #34d399; font-weight: 700;">★ ${c.rmp} RMP (${c.arate})</span>`;
+      } else {
+        c.days.forEach(d => {
+          const col = document.getElementById('col-' + d);
+          if (!col) return;
+
+          const topPx = (c.start - 8.0) * 60; // 8am = 0px, 60px/hr
+          const heightPx = (c.end - c.start) * 60;
+
+          const block = document.createElement('div');
+          block.className = 'class-block';
+          block.style.top = topPx + 'px';
+          block.style.height = heightPx + 'px';
+          block.style.setProperty('--block-accent', c.col);
+          block.style.setProperty('--block-bg', c.bg);
+          block.onclick = () => openDrawer(c.id);
+
+          block.innerHTML = `
+            <b>${c.code}</b>
+            <div class="cb-prof">${c.prof.split('/')[0].split('&')[0].trim()}</div>
+            <div class="cb-meta">${c.room} · #${c.unique}</div>
+          `;
+          col.appendChild(block);
+        });
+      }
+    });
+
+    onlineStrip.style.display = hasOnline ? 'flex' : 'none';
+
+    // Unique Copy Bar
+    const uniqueBar = document.getElementById('unique-copy-bar');
+    uniqueBar.innerHTML = '<span style="font-size: 12px; font-weight: 800; color: #ff9d55; text-transform: uppercase;">Registration Uniques:</span>';
+    COURSES.filter(c => selectedIds.has(c.id)).forEach(c => {
+      const chip = document.createElement('span');
+      chip.className = 'copy-chip';
+      chip.textContent = `${c.code}: ${c.unique}`;
+      chip.title = 'Click to copy unique number';
+      chip.onclick = () => {
+        navigator.clipboard.writeText(c.unique);
+        const old = chip.textContent;
+        chip.textContent = 'COPIED!';
+        setTimeout(() => chip.textContent = old, 1200);
+      };
+      uniqueBar.appendChild(chip);
+    });
+  }
+
+  // Update Metrics
+  function updateMetrics() {
+    let hrs = 0;
+    let count = 0;
+    COURSES.filter(c => selectedIds.has(c.id)).forEach(c => {
+      hrs += c.hours;
+      count++;
+    });
+
+    document.getElementById('disp-hours').textContent = `${hrs} hrs`;
+    document.getElementById('disp-courses').textContent = `${count} Course${count > 1 ? 's' : ''}`;
+    
+    // Calculate weighted expected GPA
+    let gpaTotal = 0;
+    COURSES.filter(c => selectedIds.has(c.id)).forEach(c => {
+      const rmpNum = parseFloat(c.rmp) || 4.5;
+      const expected = 3.6 + (rmpNum - 3.5) * 0.22;
+      gpaTotal += Math.min(4.0, expected) * c.hours;
+    });
+    const avgGpa = hrs > 0 ? (gpaTotal / hrs).toFixed(2) : '4.00';
+    document.getElementById('disp-gpa').textContent = `${avgGpa} GPA`;
+  }
+
+  function updateUI() {
+    renderCheckboxes();
+    renderGrid();
+    checkConflicts();
+    updateMetrics();
+  }
+
+  // Modal / Drawer Functions
+  function openDrawer(id) {
+    const c = COURSES.find(item => item.id === id);
+    if (!c) return;
+
+    document.getElementById('m-badge-cat').textContent = c.tag;
+    document.getElementById('m-title').textContent = `${c.code} · ${c.title}`;
+    document.getElementById('m-sub').textContent = `${c.prof} · Unique #${c.unique} · ${c.hours} Semester Hours`;
+
+    document.getElementById('m-rmp').textContent = c.rmp;
+    document.getElementById('m-diff').textContent = c.diff;
+    document.getElementById('m-retake').textContent = c.retake;
+    document.getElementById('m-arate').textContent = c.arate;
+
+    const gb = document.getElementById('m-gradebar');
+    gb.innerHTML = `
+      <div class="grade-seg-a" style="width: ${c.aPct}%;"></div>
+      <div class="grade-seg-b" style="width: ${c.bPct}%;"></div>
+      <div class="grade-seg-c" style="width: ${c.cPct}%;"></div>
+    `;
+
+    document.getElementById('m-tactic').innerHTML = c.tactic;
+    document.getElementById('m-sched-intel').innerHTML = c.intel;
+    document.getElementById('m-backup').innerHTML = c.backup;
+
+    document.getElementById('detail-drawer').classList.add('active');
+  }
+
+  function closeDrawer(e) {
+    if (e.target.id === 'detail-drawer') {
+      document.getElementById('detail-drawer').classList.remove('active');
+    }
+  }
+
+  function closeDrawerDirect() {
+    document.getElementById('detail-drawer').classList.remove('active');
+  }
+
+  // Initial Run
+  updateUI();
+</script>
+
+</body>
+</html>
